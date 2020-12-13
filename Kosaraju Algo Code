@@ -1,0 +1,76 @@
+#include<bits/stdc++.h>
+using namespace std;
+int V = 8;
+
+unordered_map<int,vector<int>> graph,transpose;					//initialise graphs
+
+void DFS1(int i,vector<bool>& visited,stack<int>& stk)
+{
+	visited[i]=true;								//visiting nodes
+	for(int j: graph[i])									//visiting neighbours
+		if(visited[j]==false)
+			DFS1(j,visited,stk);
+
+	stk.push(i);									//inserting in stack
+}
+
+void reverse()										//to find transpose
+{
+	for(int i=0;i<V;++i)
+	{
+		for(int j: graph[i])								//visiting neighbours
+			transpose[j].push_back(i);
+	}
+}
+
+void DFS2(int i,vector<bool>& visited)
+{
+	cout<<i<<" ";
+	visited[i] = true;								//visiting nodes
+	for(int j: transpose[i])
+		if(!visited[j])
+			DFS2(j,visited);
+}
+
+void find()											//to find SCC
+{
+	stack<int> stk;
+
+	vector<bool> visited(V,false);
+	for(int i=0;i<V;++i)
+		if(!visited[i])
+			DFS1(i,visited,stk);
+
+	reverse();
+
+	for(int i=0;i<V;++i)
+		visited[i] = false;
+
+	cout<<"Strongly Connected Components are:\n";
+	while(!stk.empty())
+	{
+		int curr = stk.top();
+		stk.pop();
+		if(visited[curr]==false)
+		{
+			DFS2(curr,visited);
+			cout<<"\n";
+		}
+	}
+}
+int main()
+{
+	graph[0].push_back(1);				//creating graph
+	graph[1].push_back(2);
+	graph[2].push_back(0);
+	graph[2].push_back(3);
+	graph[3].push_back(4);
+	graph[4].push_back(5);
+	graph[4].push_back(7);
+	graph[5].push_back(6);
+	graph[6].push_back(4);
+	graph[6].push_back(7);
+
+	find();
+	return 0;
+}
