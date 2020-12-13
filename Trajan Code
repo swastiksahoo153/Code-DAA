@@ -1,0 +1,67 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define V 7
+
+unordered_map<int,vector<int>> graph;				//initialising graph
+
+void DFS(int u,vector<int>& disc,vector<int>& low,stack<int>& stk,vector<bool>& InStk)
+{
+	static int time = 0;						//initialising time
+	disc[u] = low[u] = time;
+	time+=1;
+	stk.push(u);
+	InStk[u] = true;
+
+	for(int v: graph[u])						//visiting neighbours
+	{
+		if(disc[v]==-1)	//If v is not visited
+		{
+			DFS(v,disc,low,stk,InStk);
+			low[u] = min(low[u],low[v]);
+		}
+		//Differentiate back-edge and cross-edge
+		else if(InStk[v])	//Back-edge case
+			low[u] = min(low[u],disc[v]);
+	}
+
+	if(low[u]==disc[u])	//If u is head node of SCC
+	{
+		cout<<"SCC is: ";
+		while(stk.top()!=u)
+		{
+			cout<<stk.top()<<" ";
+			InStk[stk.top()] = false;
+			stk.pop();
+		}
+		cout<<stk.top()<<"\n";
+		InStk[stk.top()] = false;
+		stk.pop();
+	}
+}
+
+void trajan()
+{
+	vector<int> disc(V,-1),low(V,-1);
+	vector<bool> InStk(V,false);	//Avoids cross-edge
+	stack<int> stk;
+
+	for(int i=0;i<V;++i)
+		if(disc[i]==-1)
+			DFS(i,disc,low,stk,InStk);
+}
+
+int main()
+{
+	graph[0].push_back(1);						// creating graph
+	graph[1].push_back(2);
+	graph[1].push_back(3);
+	graph[3].push_back(4);
+	graph[4].push_back(0);
+	graph[4].push_back(5);
+	graph[4].push_back(6);
+	graph[5].push_back(6);
+	graph[6].push_back(5);
+
+	trajan();
+	return 0;
+}
